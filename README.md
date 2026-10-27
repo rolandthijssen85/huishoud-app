@@ -38,6 +38,14 @@ Telefoons staan pushmeldingen en "op beginscherm zetten" alleen toe via **https*
 
 Liever geen eigen server? Elke host die een Docker-container met een blijvende schijf kan draaien werkt ook (bijvoorbeeld Fly.io met een volume op `/data`).
 
+## Bijwerken op de pc
+
+Dubbelklik op `bijwerken.cmd` in de app-map. Het script haalt de nieuwste versie van `main` op GitHub, kopieert alleen wat veranderd is, bouwt de app opnieuw op en start hem weer. Het maakt eerst een kopie van de database in `data-backup-auto-<datum>` (de laatste 5 blijven bewaard).
+
+`docker-compose.yml` (met het echte wachtwoord), `data/`, `data-backup*` en `.env` raakt het nooit aan. Is `docker-compose.yml` op GitHub veranderd, dan zet het script die versie als `docker-compose.nieuw.yml` ernaast, zodat je de wijziging zelf kunt overnemen.
+
+Updates van pakketten en van de Node-basis komen als pull request van Dependabot binnen (zie `.github/dependabot.yml`). Na het samenvoegen staat de nieuwe versie pas op de pc als je `bijwerken.cmd` draait.
+
 ## Telefoons instellen
 
 - **iPhone (iOS 16.4 of nieuwer)**: open de app in Safari, tik op het deel-icoon en kies *Zet op beginscherm*. Open de app daarna vanaf het beginscherm, log in, kies je naam en zet onder *Meer* de meldingen aan.
