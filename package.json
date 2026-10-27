@@ -1,0 +1,15 @@
+{
+  "name": "huishoud-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Klusjes thuis bijhouden met het hele gezin",
+  "main": "server.js",
+  "engines": { "node": ">=22.5" },
+  "scripts": {
+    "start": "node --no-warnings=ExperimentalWarning server.js",
+    "test": "node --no-warnings=ExperimentalWarning --test"
+  },
+  "dependencies": {
+    "web-push": "3.6.7"
+  }
+}

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2f7d5b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Huishouden">
+  <title>Huishouden</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <h1 id="title">Huishouden</h1>
+    <button id="who" class="chip" hidden></button>
+  </header>
+
+  <main id="view"></main>
+
+  <nav id="tabs" hidden>
+    <button data-tab="vandaag" class="active"><span>✓</span>Vandaag</button>
+    <button data-tab="week"><span>▦</span>Week</button>
+    <button data-tab="lijsten"><span>▤</span>Lijsten</button>
+    <button data-tab="taken"><span>☰</span>Taken</button>
+    <button data-tab="stats"><span>★</span>Statistiek</button>
+    <button data-tab="instellingen"><span>⚙</span>Meer</button>
+  </nav>
+
+  <dialog id="dialog"></dialog>
+  <div id="toast" hidden></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

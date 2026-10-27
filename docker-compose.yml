@@ -1,0 +1,12 @@
+services:
+  huishouden:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      FAMILY_PASSWORD: "kies-een-wachtwoord"
+      VAPID_SUBJECT: "mailto:jouw@email.nl"
+      TZ: "Europe/Amsterdam"
+    volumes:
+      - ./data:/data
