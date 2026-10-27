@@ -19,6 +19,7 @@ Een herhalende taak schuift mee: wordt "planten water geven (elke 3 dagen)" pas 
 - Node.js 22.5 of nieuwer, zonder framework. Database: SQLite (ingebouwd in Node), bestand `data/huishouden.db`.
 - Eén extra pakket: `web-push` voor de meldingen. De sleutels daarvoor maakt de app zelf bij de eerste start.
 - Eén gezinswachtwoord (`FAMILY_PASSWORD`). Na inloggen kiest ieder op de eigen telefoon één keer wie die is.
+- Bescherming tegen wachtwoorden raden: na 5 foute pogingen moet dat adres een kwartier wachten, en voor iedereen samen zijn er hooguit 50 foute pogingen per uur. Wie al ingelogd is, merkt daar niets van. Kies toch een lang wachtwoord als de app op internet staat.
 
 ## Starten op je eigen server (Docker)
 

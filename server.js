@@ -8,6 +8,7 @@ const tasks = require('./tasks');
 const lists = require('./lists');
 const push = require('./push');
 const calendar = require('./calendar');
+const { createLimiter, clientAddress } = require('./login-limit');
 
 const PORT = Number(process.env.PORT || 3000);
 const PASSWORD = process.env.FAMILY_PASSWORD;
@@ -15,6 +16,8 @@ if (!PASSWORD) {
   console.error('Zet FAMILY_PASSWORD (het gezinswachtwoord) voordat je de app start.');
   process.exit(1);
 }
+
+const loginLimit = createLimiter();
 
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const TYPES = {
@@ -258,8 +261,19 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
   try {
     if (url.pathname === '/api/login' && req.method === 'POST') {
+      const client = clientAddress(req);
+      const wait = loginLimit.waitSeconds(client);
+      if (wait) {
+        const minutes = Math.ceil(wait / 60);
+        return send(res, 429, { error: `Te vaak een verkeerd wachtwoord. Probeer het over ${minutes} ${minutes === 1 ? 'minuut' : 'minuten'} opnieuw.` },
+          { 'Retry-After': String(wait) });
+      }
       const body = await readJson(req);
-      if (!passwordMatches(body.password || '')) return send(res, 401, { error: 'Wachtwoord klopt niet.' });
+      if (!passwordMatches(body.password || '')) {
+        loginLimit.failed(client);
+        return send(res, 401, { error: 'Wachtwoord klopt niet.' });
+      }
+      loginLimit.succeeded(client);
       const token = crypto.randomBytes(32).toString('hex');
       db.prepare('INSERT INTO sessions (token, created_at) VALUES (?, ?)').run(token, new Date().toISOString());
       const secure = req.headers['x-forwarded-proto'] === 'https' ? '; Secure' : '';
