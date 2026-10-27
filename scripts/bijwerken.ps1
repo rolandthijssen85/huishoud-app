@@ -10,6 +10,9 @@ param(
 $ErrorActionPreference = "Stop"
 $Repo = "rolandthijssen85/huishoud-app"
 $App = Split-Path -Parent $PSScriptRoot
+# Bestaat dit bestand, dan is een vorige keer halverwege misgegaan en bouwen we hoe dan ook opnieuw.
+$Onvoltooid = Join-Path $App ".bijwerken-onvoltooid"
+$vorigeKeerMis = Test-Path $Onvoltooid
 
 function Stop-Met($tekst) {
   Write-Host ""
@@ -17,10 +20,17 @@ function Stop-Met($tekst) {
   exit 1
 }
 
+# Docker schrijft voortgang naar stderr; met "Stop" zou PowerShell dat als fout zien.
+function Invoke-Docker {
+  $vorige = $ErrorActionPreference
+  $ErrorActionPreference = "Continue"
+  try { & docker.exe @args } finally { $ErrorActionPreference = $vorige }
+}
+
 function Overslaan($pad) {
   $eerste = ($pad -split '[\\/]')[0]
   return ($pad -eq "docker-compose.yml") -or ($eerste -eq "data") -or
-    ($eerste -like "data-backup*") -or ($eerste -eq "node_modules") -or ($eerste -eq ".github") -or
+    ($eerste -like "data-backup*") -or ($eerste -eq "node_modules") -or ($eerste -eq ".github") -or ($eerste -eq ".bijwerken-onvoltooid") -or
     ($eerste -like "*.env") -or ($eerste -eq ".env")
 }
 
@@ -46,6 +56,7 @@ try {
   $bron = (Get-ChildItem (Join-Path $tmp "uit") -Directory | Select-Object -First 1).FullName
 
   # 2. Gewijzigde bestanden kopieren
+  Set-Content -Path $Onvoltooid -Value (Get-Date -Format s)
   $gewijzigd = @()
   foreach ($f in Get-ChildItem $bron -Recurse -File -Force) {
     $rel = $f.FullName.Substring($bron.Length + 1)
@@ -69,20 +80,25 @@ try {
   Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
 }
 
-if ($gewijzigd.Count -eq 0) {
+if ($gewijzigd.Count -eq 0 -and -not $vorigeKeerMis) {
+  Remove-Item $Onvoltooid -Force
   Write-Host "De app is al up-to-date. Er is niets veranderd." -ForegroundColor Green
   exit 0
 }
-Write-Host "Bijgewerkte bestanden:"
-$gewijzigd | ForEach-Object { Write-Host "  $_" }
+if ($gewijzigd.Count -eq 0) {
+  Write-Host "De vorige keer is het bijwerken niet afgemaakt; nu opnieuw bouwen." -ForegroundColor Yellow
+} else {
+  Write-Host "Bijgewerkte bestanden:"
+  $gewijzigd | ForEach-Object { Write-Host "  $_" }
+}
 
 # 3. Bouwen terwijl de oude versie nog draait (--pull haalt ook de nieuwste Node-basis op)
 Write-Host "Nieuwe versie bouwen..."
-docker compose build --pull
+Invoke-Docker compose build --pull
 if ($LASTEXITCODE -ne 0) { Stop-Met "Bouwen mislukt. De oude versie draait gewoon door." }
 
 # 4. Stoppen, database kopieren, opnieuw starten
-docker compose stop
+Invoke-Docker compose stop
 $backup = "data-backup-auto-" + (Get-Date -Format "yyyy-MM-dd-HHmm")
 if (Test-Path "data") {
   Copy-Item "data" $backup -Recurse
@@ -90,7 +106,7 @@ if (Test-Path "data") {
   Get-ChildItem -Directory -Filter "data-backup-auto-*" | Sort-Object Name -Descending |
     Select-Object -Skip $Bewaren | Remove-Item -Recurse -Force
 }
-docker compose up -d
+Invoke-Docker compose up -d
 if ($LASTEXITCODE -ne 0) { Stop-Met "Starten mislukt. Kijk in Docker Desktop wat er mis is." }
 
 # 5. Controleren of de app reageert
@@ -101,6 +117,7 @@ for ($i = 0; $i -lt 30 -and -not $ok; $i++) {
 }
 if (-not $ok) { Stop-Met "De app reageert niet op http://localhost:3000. Kijk in Docker Desktop naar de logs." }
 
+Remove-Item $Onvoltooid -Force
 Write-Host ""
 Write-Host "Klaar: de app is bijgewerkt en draait weer." -ForegroundColor Green
 if ($composeAnders) {
