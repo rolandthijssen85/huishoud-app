@@ -66,3 +66,7 @@ Iedereen met de link kan de agenda inzien. De link staat alleen in de database o
 
 - `npm test` draait de tests van de takenlogica, de lijsten, het agendabestand (`ics.js`) en de agendaregels (`calendar.js`).
 - `node scripts/make-icons.js` maakt de app-iconen opnieuw.
+
+## Licentie
+
+MIT, zie [LICENSE](LICENSE).
