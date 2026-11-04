@@ -6,3 +6,5 @@ data-backup*
 *.db-shm
 .env
 *.env
+bijwerken-log.txt
+.bijwerken-*
