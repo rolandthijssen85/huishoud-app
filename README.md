@@ -44,7 +44,11 @@ Dubbelklik op `bijwerken.cmd` in de app-map. Het script haalt de nieuwste versie
 
 `docker-compose.yml` (met het echte wachtwoord), `data/`, `data-backup*` en `.env` raakt het nooit aan. Is `docker-compose.yml` op GitHub veranderd, dan zet het script die versie als `docker-compose.nieuw.yml` ernaast, zodat je de wijziging zelf kunt overnemen.
 
-Updates van pakketten en van de Node-basis komen als pull request van Dependabot binnen (zie `.github/dependabot.yml`). Na het samenvoegen staat de nieuwe versie pas op de pc als je `bijwerken.cmd` draait.
+### Automatisch bijwerken
+
+Dubbelklik één keer op `automatisch-aanzetten.cmd`. Dan kijkt de pc elk kwartier (en kort na het inloggen) of er een nieuwe versie op `main` staat, en draait alleen dan hetzelfde bijwerkscript. Wat er gebeurt staat in `bijwerken-log.txt` in de app-map. Mislukt dezelfde versie drie keer, dan wacht het tot er een nieuwere is of tot je `bijwerken.cmd` zelf draait. Uitzetten: dubbelklik op `automatisch-uitzetten.cmd`.
+
+Updates van pakketten en van de Node-basis komen als pull request van Dependabot binnen (zie `.github/dependabot.yml`). Na het samenvoegen staat de nieuwe versie op de pc zodra het automatisch bijwerken langskomt, of als je `bijwerken.cmd` draait.
 
 ## Telefoons instellen
 
