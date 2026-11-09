@@ -10,6 +10,6 @@
     "test": "node --no-warnings=ExperimentalWarning --test"
   },
   "dependencies": {
-    "web-push": "3.6.7"
+    "web-push": "4.0.0"
   }
 }
